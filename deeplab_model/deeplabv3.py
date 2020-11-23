@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from model.resnet import resnet50, resnet34
-from model.aspp import ASPP, ASPP_Bottleneck
+from deeplab_model.resnet import resnet50, resnet34
+from deeplab_model.aspp import ASPP, ASPP_Bottleneck
 
 #from resnet import resnet50, resnet34
 #from aspp import ASPP, ASPP_Bottleneck
