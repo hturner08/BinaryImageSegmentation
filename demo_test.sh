@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Image and model names
 TEST_IMG=ADE_val_00001519.jpg
 MODEL_NAME=ade20k-resnet50dilated-ppm_deepsup
@@ -13,20 +14,20 @@ if [ ! -e $MODEL_PATH ]; then
   mkdir -p $MODEL_PATH
 fi
 if [ ! -e $ENCODER ]; then
-  curl --output $MODEL_PATH/encoder_epoch_20.pth http://sceneparsing.csail.mit.edu/model/pytorch/$ENCODER
+  wget -P $MODEL_PATH http://sceneparsing.csail.mit.edu/model/pytorch/$ENCODER
 fi
 if [ ! -e $DECODER ]; then
-  curl --output $MODEL_PATH/decoder_epoch_20.pth http://sceneparsing.csail.mit.edu/model/pytorch/$DECODER
+  wget -P $MODEL_PATH http://sceneparsing.csail.mit.edu/model/pytorch/$DECODER
 fi
 if [ ! -e $TEST_IMG ]; then
-  curl --output $RESULT_PATH/test.jpg http://sceneparsing.csail.mit.edu/data/ADEChallengeData2016/images/validation/$TEST_IMG
+  wget -P $RESULT_PATH http://sceneparsing.csail.mit.edu/data/ADEChallengeData2016/images/validation/$TEST_IMG
 fi
 
 if [ -z "$DOWNLOAD_ONLY" ]
 then
 
 # Inference
-python -u test.py \
+python3 -u test.py \
   --imgs $TEST_IMG \
   --cfg config/ade20k-resnet50dilated-ppm_deepsup.yaml \
   DIR $MODEL_PATH \
