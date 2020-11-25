@@ -30,7 +30,6 @@ def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
     for i in range(cfg.TRAIN.epoch_iters):
         # load a batch of data
         batch_data = next(iterator)
-#         print(len(batch_data))
         data_time.update(time.time() - tic)
         segmentation_module.zero_grad()
 
@@ -39,7 +38,7 @@ def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
         adjust_learning_rate(optimizers, cur_iter, cfg)
 
         # forward pass
-        loss, acc = segmentation_module(batch_data[0])
+        loss, acc = segmentation_module(batch_data)
         loss = loss.mean()
         acc = acc.mean()
 
