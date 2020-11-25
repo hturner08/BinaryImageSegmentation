@@ -1,3 +1,6 @@
+import sys
+import os
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,6 +11,8 @@ from deeplab_model.aspp import ASPP, ASPP_Bottleneck
 #from resnet import resnet50, resnet34
 #from aspp import ASPP, ASPP_Bottleneck
 
+working_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(working_dir)
 class Bottleneck_custom(nn.Module):
     expansion = 4
 
@@ -84,7 +89,7 @@ class DeepLabV3(nn.Module):
         resnet = resnet34() #resnet50()
         
         #resnet.load_state_dict(torch.load("/home/kaustavb/6867/model/resnet50-19c8e357.pth")) #needed ResNet50
-        resnet.load_state_dict(torch.load("/home/kaustavb/6867/model/resnet34-333f7ec4.pth")) #needed ResNet34
+        resnet.load_state_dict(torch.load("./deeplab_model/resnet34-333f7ec4.pth")) #needed ResNet34
         
         #self.resnet = nn.Sequential(*list(resnet.children())[:-3]) #only the convolutional features are extracted.
         self.encoder = resnet
@@ -133,7 +138,7 @@ class DeepLabV3(nn.Module):
         #print(low_level_features.shape)
         #print(feature_map.shape)
         feature_map = self.layer5(feature_map)
-        #print(feature_map.shape)
+        print(feature_map.shape)
         output = self.aspp(feature_map) # (shape: (batch_size, 256, h/4, w/4))
         #print(output.shape)
         
