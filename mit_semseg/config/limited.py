@@ -14,7 +14,7 @@ _C.DATASET = CN()
 _C.DATASET.root_dataset = "./data/"
 _C.DATASET.list_train = "./data/limited_training.odgt"
 _C.DATASET.list_val = "./data/limited_validation.odgt"
-_C.DATASET.num_class = 7
+_C.DATASET.num_class = 8
 # multiscale train/test, size of short edge (int or tuple)
 _C.DATASET.imgSizes = (300, 375, 450, 525, 600)
 # maximum input image size of long edge
@@ -49,7 +49,7 @@ _C.TRAIN.batch_size_per_gpu = 2
 # epochs to train for
 _C.TRAIN.num_epoch = 20
 # epoch to start training. useful if continue from a checkpoint
-_C.TRAIN.start_epoch = 0
+_C.TRAIN.start_epoch = 4
 # iterations of each epoch (irrelevant to batch size)
 _C.TRAIN.epoch_iters = 5000
 

@@ -59,7 +59,12 @@ class BaseDataset(torch.utils.data.Dataset):
 
     def segm_transform(self, segm):
         # to tensor, -1 to 149
-        segm = torch.from_numpy(np.array(segm)).long() - 1
+        segm = np.array(segm)
+        idx = [3, 5, 2, 13, 7, 21, 83]
+        for i in range(len(idx)):
+            segm = np.where(segm == idx[i],i+2,segm)
+        segm = np.where(segm>8,1,segm)
+        segm = torch.from_numpy(segm).long() - 1
         return segm
 
     # Round x to the nearest multiple of p and x' >= x
