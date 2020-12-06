@@ -138,7 +138,7 @@ class DeepLabV3(nn.Module):
         #print(low_level_features.shape)
         #print(feature_map.shape)
         feature_map = self.layer5(feature_map)
-        print(feature_map.shape)
+#         print(feature_map.shape)
         output = self.aspp(feature_map) # (shape: (batch_size, 256, h/4, w/4))
         #print(output.shape)
         
