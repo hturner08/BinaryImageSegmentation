@@ -21,7 +21,7 @@ import deeplab_model
 from deeplab_model.deeplabv3 import DeepLabV3
 
 # train one epoch
-def train(segmentation_module, iterator,  optimizer_e, optimizer_d, history, epoch, len_iterator, n_epochs, 
+def train(cfg,segmentation_module, iterator,  optimizer_e, optimizer_d, history, epoch, len_iterator, n_epochs, 
           running_lr_e, running_lr_d, crit, n_class=7):
     ave_total_loss = AverageMeter()
     ave_acc = AverageMeter()
@@ -29,11 +29,8 @@ def train(segmentation_module, iterator,  optimizer_e, optimizer_d, history, epo
     
     #segmentation_module.net.train()
     #segmentation_module.zero_grad()
-    segmentation_module.train()
-    segmentation_module.zero_grad()
-    
     # main loop
-    for i in range(len_iterator):
+    for i in range(cfg.TRAIN.epoch_iters):
         # load a batch of data
         input_dict = next(iterator)
         inputs, masks = input_dict[0]['img_data'].cuda(), input_dict[0]['seg_label'].cuda()
@@ -89,23 +86,17 @@ def train(segmentation_module, iterator,  optimizer_e, optimizer_d, history, epo
 
 
 
-def checkpoint(nets, history, cfg, epoch):
+def checkpoint(net, history, cfg, epoch):
     print('Saving checkpoints...')
-    (net_encoder, net_decoder, crit) = nets
 
-    dict_encoder = net_encoder.state_dict()
-    dict_decoder = net_decoder.state_dict()
+    weight_dict = net.state_dict()
 
     torch.save(
         history,
         '{}/history_epoch_{}.pth'.format(cfg.DIR, epoch))
     torch.save(
-        dict_encoder,
-        '{}/encoder_epoch_{}.pth'.format(cfg.DIR, epoch))
-    torch.save(
-        dict_decoder,
-        '{}/decoder_epoch_{}.pth'.format(cfg.DIR, epoch))
-
+        weight_dict,
+        '{}/deeplab_epoch_{}.pth'.format(cfg.DIR, epoch))
 
 def group_weight(module):
     group_decay = []
@@ -273,8 +264,10 @@ def main(cfg, gpus):
         running_lr_e, running_lr_d = adjust_learning_rate(optimizers_enc, optimizers_dec, epoch, num_epoch, 
                                                           lr_e=0.025, lr_d=0.050, lr_type='cos') 
         #lr changed once per epoch 
-        train(net, iterator_train, optimizers_enc, optimizers_dec, history, epoch+1, 5000, 
+        train(cfg,net, iterator_train, optimizers_enc, optimizers_dec, history, epoch+1, 5000, 
               num_epoch, running_lr_e, running_lr_d, crit, num_classes)
+        #Checkpoint Model
+        checkpoint(net, history, cfg, epoch+1)
     print('Training Done!')
 
 

@@ -148,7 +148,8 @@ class DeepLabV3(nn.Module):
         
         #low_level_features = F.relu(self.bn_conv_1x1_1(self.conv_1x1_1(low_level_features))) # (shape: (batch_size, 48, h/4, w/4))
         low_level_features = F.relu(self.aggregate(low_level_features)) # (shape: (batch_size, 48, h/4, w/4))
-        #print(low_level_features.shape)
+#         print("Features",low_level_features.shape)
+#         print("Output",output.shape)
         output = torch.cat([low_level_features, output], 1)
         #print(output.shape)
         output = self.last_conv(output) # (shape: (batch_size, 256, h/4, w/4))
