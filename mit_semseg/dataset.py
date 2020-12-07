@@ -149,15 +149,17 @@ class TrainDataset(BaseDataset):
         assert self.padding_constant >= self.segm_downsampling_rate, \
             'padding constant must be equal or large than segm downsamping rate'
         batch_images = torch.zeros(
-            self.batch_per_gpu, 3, 384, 384)
-#         batch_segms = torch.zeros(
-#             self.batch_per_gpu,
-#             batch_height // self.segm_downsampling_rate,
-#             batch_width // self.segm_downsampling_rate).long()
+            self.batch_per_gpu, 3, batch_height, batch_width)
+#         batch_images = torch.zeros(
+#             self.batch_per_gpu, 3, 384, 384)
         batch_segms = torch.zeros(
             self.batch_per_gpu,
-            384,
-            384).long()
+            batch_height // self.segm_downsampling_rate,
+            batch_width // self.segm_downsampling_rate).long()
+#         batch_segms = torch.zeros(
+#             self.batch_per_gpu,
+#             384,
+#             384).long()
 
         for i in range(self.batch_per_gpu):
             this_record = batch_records[i]
@@ -178,21 +180,21 @@ class TrainDataset(BaseDataset):
                 segm = segm.transpose(Image.FLIP_LEFT_RIGHT)
 
             # note that each sample within a mini batch has different scale param
-#             img = imresize(img, (batch_widths[i], batch_heights[i]), interp='bilinear')
-#             segm = imresize(segm, (batch_widths[i], batch_heights[i]), interp='nearest')
-            img = imresize(img, (384, 384), interp='bilinear')
-            segm = imresize(segm, (384, 384), interp='nearest')
+            img = imresize(img, (batch_widths[i], batch_heights[i]), interp='bilinear')
+            segm = imresize(segm, (batch_widths[i], batch_heights[i]), interp='nearest')
+#             img = imresize(img, (384, 384), interp='bilinear')
+#             segm = imresize(segm, (384, 384), interp='nearest')
 
             # further downsample seg label, need to avoid seg label misalignment
-#             segm_rounded_width = self.round2nearest_multiple(segm.size[0], self.segm_downsampling_rate)
-#             segm_rounded_height = self.round2nearest_multiple(segm.size[1], self.segm_downsampling_rate)
-#             segm_rounded = Image.new('L', (segm_rounded_width, segm_rounded_height), 0)
-#             segm_rounded.paste(segm, (0, 0))
-#             segm = imresize(
-#                 segm_rounded,
-#                 (segm_rounded.size[0] // self.segm_downsampling_rate, \
-#                  segm_rounded.size[1] // self.segm_downsampling_rate), \
-#                 interp='nearest')
+            segm_rounded_width = self.round2nearest_multiple(segm.size[0], self.segm_downsampling_rate)
+            segm_rounded_height = self.round2nearest_multiple(segm.size[1], self.segm_downsampling_rate)
+            segm_rounded = Image.new('L', (segm_rounded_width, segm_rounded_height), 0)
+            segm_rounded.paste(segm, (0, 0))
+            segm = imresize(
+                segm_rounded,
+                (segm_rounded.size[0] // self.segm_downsampling_rate, \
+                 segm_rounded.size[1] // self.segm_downsampling_rate), \
+                interp='nearest')
 
             # image transform, to torch float tensor 3xHxW
             img = self.img_transform(img)
@@ -203,11 +205,11 @@ class TrainDataset(BaseDataset):
 #             print("Label",segm.shape)
 #             print("Image size",batch_images[i].shape)
 #             print("Label size",batch_segms[i].shape)
-            # put into batch arrays
-#             batch_images[i][:, :img.shape[1], :img.shape[2]] = img
-#             batch_segms[i][:segm.shape[0], :segm.shape[1]] = segm
-            batch_images[i] = img
-            batch_segms[i] = segm
+#             put into batch arrays
+            batch_images[i][:, :img.shape[1], :img.shape[2]] = img
+            batch_segms[i][:segm.shape[0], :segm.shape[1]] = segm
+#             batch_images[i] = img
+#             batch_segms[i] = segm
 
         output = dict()
         output['img_data'] = batch_images

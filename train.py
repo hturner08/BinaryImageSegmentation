@@ -9,7 +9,7 @@ from distutils.version import LooseVersion
 import torch
 import torch.nn as nn
 # Our libs
-from mit_semseg.config import limited_cfg as cfg
+from mit_semseg.config import cfg
 from mit_semseg.dataset import TrainDataset
 from mit_semseg.models import ModelBuilder, SegmentationModule
 from mit_semseg.utils import AverageMeter, parse_devices, setup_logger
@@ -30,7 +30,6 @@ def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
     for i in range(cfg.TRAIN.epoch_iters):
         # load a batch of data
         batch_data = next(iterator)
-#         print(len(batch_data))
         data_time.update(time.time() - tic)
         segmentation_module.zero_grad()
 
