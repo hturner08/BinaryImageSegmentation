@@ -183,6 +183,8 @@ class QConv2d(nn.Conv2d):
 class PReLU(Function):    
     @staticmethod
     def forward(ctx, tensor, gamma, eta, beta): 
+        print(tensor.shape)
+        print(gamma.shape)
         x = tensor-gamma
         ctx.save_for_backward(x, beta)
         
@@ -246,12 +248,14 @@ def update_model_grads(net):
     for n,m in net.named_modules():
         if isinstance(m, QConv2d) :#or isinstance(m, QLinear):
             m.update_grads()
+            
 def update_model_a_sgn(net, epoch):
     for n,m in net.named_modules():
         if isinstance(m, QConv2d) :#or isinstance(m, QLinear):
             m.update_a_sgn(epoch)
             a_sgn = m.a_sgn #-->
     return a_sgn #-->
+
 def update_model_a_sgn_val(net, epoch):
     for n,m in net.named_modules():
         if isinstance(m, QConv2d) :#or isinstance(m, QLinear):
@@ -259,13 +263,13 @@ def update_model_a_sgn_val(net, epoch):
             a_sgn = m.a_sgn #-->
     return a_sgn #-->
 
-def quantize_model(net):
+def quantize_model(net,skip_list=['conv1']):
     n_channels = -1 #--->
     N_val = 3
     for n,m in net.named_modules():
         if isinstance(m, nn.Conv2d):
             n_channels = m.weight.size()[0] #---->
-            if n=='encoder.conv1': 
+            if n in skip_list: 
                 #the first convlution layer remains as full-precision (first layer of ResNet-18 encoder) #it is called backbone.conv1 in DeepLabv3+ code.
                 continue
             else :

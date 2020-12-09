@@ -14,10 +14,10 @@ from mit_semseg.dataset import TrainDataset
 from mit_semseg.models import ModelBuilder, SegmentationModule
 from mit_semseg.utils import AverageMeter, parse_devices, setup_logger
 from mit_semseg.lib.nn import UserScatteredDataParallel, user_scattered_collate, patch_replication_callback
-from mit_semseq.quantize import *
+from mit_semseg.quantize import *
 
 # train one epoch
-def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
+def train(segmentation_module,nets, iterator, optimizers, history, epoch, cfg):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     ave_total_loss = AverageMeter()
@@ -44,8 +44,8 @@ def train(segmentation_module, iterator, optimizers, history, epoch, cfg):
 
         # Backward
         loss.backward()
-        update_model_grads(segmentation_module.decoder)
-        update_model_grads(segmentation_module.encoder)
+        update_model_grads(nets[1])
+        update_model_grads(nets[0])
         for optimizer in optimizers:
             optimizer.step()
 
@@ -109,7 +109,7 @@ def group_weight(module):
             if m.bias is not None:
                 group_no_decay.append(m.bias)
 
-    assert len(list(module.parameters())) == len(group_decay) + len(group_no_decay)
+#     assert len(list(module.parameters())) == len(group_decay) + len(group_no_decay)
     groups = [dict(params=group_decay), dict(params=group_no_decay, weight_decay=.0)]
     return groups
 
@@ -146,7 +146,7 @@ def main(cfg, gpus):
     net_encoder = quantize_model(ModelBuilder.build_encoder(
         arch=cfg.MODEL.arch_encoder.lower(),
         fc_dim=cfg.MODEL.fc_dim,
-        weights=cfg.MODEL.weights_encoder))
+        weights=cfg.MODEL.weights_encoder),['conv1'])
     net_decoder = quantize_model(ModelBuilder.build_decoder(
         arch=cfg.MODEL.arch_decoder.lower(),
         fc_dim=cfg.MODEL.fc_dim,
@@ -199,7 +199,7 @@ def main(cfg, gpus):
     history = {'train': {'epoch': [], 'loss': [], 'acc': []}}
 
     for epoch in range(cfg.TRAIN.start_epoch, cfg.TRAIN.num_epoch):
-        train(segmentation_module, iterator_train, optimizers, history, epoch+1, cfg)
+        train(segmentation_module,nets, iterator_train, optimizers, history, epoch+1, cfg)
 
         # checkpointing
         checkpoint(nets, history, cfg, epoch+1)
