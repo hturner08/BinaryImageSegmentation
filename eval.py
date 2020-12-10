@@ -43,7 +43,7 @@ def evaluate(segmentation_module, loader, cfg, gpu):
     intersection_meter = AverageMeter()
     union_meter = AverageMeter()
     time_meter = AverageMeter()
-
+    dice_meter = AverageMeter()
     segmentation_module.eval()
 
     pbar = tqdm(total=len(loader))
@@ -95,13 +95,13 @@ def evaluate(segmentation_module, loader, cfg, gpu):
         pbar.update(1)
 
     # summary
+    
     iou = intersection_meter.sum / (union_meter.sum + 1e-10)
     for i, _iou in enumerate(iou):
         print('class [{}], IoU: {:.4f}'.format(i, _iou))
-
     print('[Eval Summary]:')
-    print('Mean IoU: {:.4f}, Accuracy: {:.2f}%, Inference Time: {:.4f}s'
-          .format(iou.mean(), acc_meter.average()*100, time_meter.average()))
+    print('Mean IoU: {:.4f}, Accuracy: {:.2f}%,Dice Score{:.4f}, Inference Time: {:.4f}s'
+          .format(iou.mean(), acc_meter.average()*100,dice_score, time_meter.average()))
 
 
 def main(cfg, gpu):

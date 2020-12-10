@@ -265,7 +265,7 @@ def update_model_a_sgn_val(net, epoch):
 
 def quantize_model(net,skip_list=['conv1']):
     n_channels = -1 #--->
-    N_val = 3
+    N_val = 8
     for n,m in net.named_modules():
         if isinstance(m, nn.Conv2d):
             n_channels = m.weight.size()[0] #---->
@@ -277,7 +277,7 @@ def quantize_model(net,skip_list=['conv1']):
                 bias = False
                 if m.bias is not None:
                     bias = True
-                init_args = {'weight_data': m.weight.data,'bias_data': m.bias.data if bias else None, 'M':3, 'N':N_val, 'shift_v': torch.randn(N_val,m.weight.data.size()[1]*m.groups), 'a_sgn':1.0} #added the 'alpha' variable which will be initialized from previously learned values.
+                init_args = {'weight_data': m.weight.data,'bias_data': m.bias.data if bias else None, 'M':5, 'N':N_val, 'shift_v': torch.randn(N_val,m.weight.data.size()[1]*m.groups), 'a_sgn':1.0} #added the 'alpha' variable which will be initialized from previously learned values.
                 conv_args = {'in_channels': m.in_channels, 'out_channels': m.out_channels, 'kernel_size': m.kernel_size, 'stride': m.stride, 'padding': m.padding, 'groups': m.groups, 'bias': bias, 'dilation': m.dilation}
                 conv = QConv2d(init_args = init_args, **conv_args)
                 rsetattr(net,n, conv)
